@@ -1,5 +1,9 @@
 # Changelog for simple_saml
 
+## v1.0.0
+
+* Add support for parsing and verifying a SAML response
+
 ## v0.2.0
 
 * Add support for `SimpleSaml.Assertions`

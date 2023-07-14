@@ -11,9 +11,27 @@ This library is a helper for adding SAML service provider functionality without 
 
 ## Usage
 
-### SSO Assertions
+### SAML Response
 
-Coming soon...
+```elixir
+# Parse a SAML response.
+{:ok, {root, %Assertion{} = assertion}} = SimpleSaml.parse_response(saml_response)
+
+# Identify the IDP based on the audience within the asserion and obtain the associated parameters: issuer (e.g. "http://www.okta.com/exka5ha6bknY6Okd85d7"), audience (i.e. a fix string your application provided to the IDP), and the SAML certificate of the IDP
+
+# SAML certificates are typically stored in PEM or Der format.  Here's an example of how to obtain the public key using the X509 library:
+# Assume cert_pem contains the string contents of the certificate pem file
+{:ok, cert} = X509.Certificate.from_pem(cert_pem)
+public_key = X509.Certificate.public_key(cert)
+
+# Use the public key to verify and validate
+:ok = SimpleSaml.verify_and_validate_response(root, assertion, public_key)
+
+# Validate that assertion.issuer, assertion.recipient values match your expected values for the IDP
+
+# At this point, you're ready to use the assertion.name_id claim within your application to
+# authenticate the user.
+```
 
 ## Installation
 
@@ -22,7 +40,7 @@ The package can be installed, via [Hex](https://hex.pm/packages/simple_saml), by
 ```elixir
 def deps do
   [
-    {:simple_saml, "~> 0.1.0"}
+    {:simple_saml, "~> 1.0.0"}
   ]
 end
 ```
