@@ -7,7 +7,7 @@
 [![License](https://img.shields.io/hexpm/l/simple_saml.svg)](https://github.com/MBXSystems/simple_saml/blob/master/LICENSE)
 [![Last Updated](https://img.shields.io/github/last-commit/MBXSystems/simple_saml.svg)](https://github.com/MBXSystems/simple_saml/commits/master)
 
-A helper for adding SAML service provider functionality without relying on xmerl and thus being vulnerable to [atom exhaustion](https://erlef.github.io/security-wg/secure_coding_and_deployment_hardening/xmerl.html). It does so by using the [simple_xml](https://hex.pm/packages/simple_xml), which in turn uses [saxy](https://hex.pm/packages/saxy) to generate a string based DOM reprsentation.
+This library is helper for adding SAML service provider functionality without relying on xmerl and thus being vulnerable to [atom exhaustion](https://erlef.github.io/security-wg/secure_coding_and_deployment_hardening/xmerl.html). It does so by using the [simple_xml](https://hex.pm/packages/simple_xml), which in turn uses [saxy](https://hex.pm/packages/saxy) to generate a string based DOM reprsentation.
 
 ## Usage
 
