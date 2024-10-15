@@ -39,7 +39,7 @@ defmodule SimpleSaml.MixProject do
   # Run "mix help deps" to learn about dependencies.
   defp deps do
     [
-      {:simple_xml, "~> 1.0.0"},
+      {:simple_xml, "~> 1.2.0"},
       {:x509, "~> 0.8.7"},
       {:ex_doc, ">= 0.0.0", only: [:dev], runtime: false},
       {:credo, "~> 1.7.0", only: [:dev, :test], runtime: false},
