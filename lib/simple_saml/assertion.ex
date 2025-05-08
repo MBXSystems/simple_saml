@@ -60,25 +60,25 @@ defmodule SimpleSaml.Assertion do
 
       iex> xml = ~S{<saml2:Assertion ID="id2812939747337372346813126" IssueInstant="2023-07-14T12:16:55.216Z" Version="2.0" xmlns:saml2="urn:oasis:names:tc:SAML:2.0:assertion"><saml2:Subject><saml2:NameID Format="urn:oasis:names:tc:SAML:1.1:nameid-format:unspecified">dj.jain</saml2:NameID><saml2:SubjectConfirmation Method="urn:oasis:names:tc:SAML:2.0:cm:bearer"><saml2:SubjectConfirmationData NotOnOrAfter="2023-07-14T12:21:55.216Z" Recipient="https://local.mbx.com:4001/auth/ahead/sso"/></saml2:SubjectConfirmation></saml2:Subject><saml2:Conditions NotBefore="2023-07-14T12:11:55.216Z" NotOnOrAfter="2023-07-14T12:21:55.216Z"><saml2:AudienceRestriction><saml2:Audience>xqO52CNELd0hVB9vaX1d_dcwuYAxGUSr</saml2:Audience></saml2:AudienceRestriction></saml2:Conditions><saml2:AuthnStatement AuthnInstant="2023-07-14T12:16:55.216Z" SessionIndex="id1689337015214.1284590967"><saml2:AuthnContext><saml2:AuthnContextClassRef>urn:oasis:names:tc:SAML:2.0:ac:classes:PasswordProtectedTransport</saml2:AuthnContextClassRef></saml2:AuthnContext></saml2:AuthnStatement></saml2:Assertion>}
       iex> {:ok, assertion_node} = SimpleXml.parse(xml)
-      iex> {:error, {:child_not_found, [child_name: "*:Issuer", actual_children: _]}} = SimpleSaml.Assertion.from_node(assertion_node)
+      iex> {:error, {:child_not_found, [child_name: ~r/.*:?Issuer$/, actual_children: _]}} = SimpleSaml.Assertion.from_node(assertion_node)
 
   """
   @spec from_node(xml_node()) :: {:ok, t()} | {:error, any()}
   def from_node(xml_node) when is_tuple(xml_node) do
-    with {:ok, issuer_node} <- XmlNode.first_child(xml_node, "*:Issuer"),
+    with {:ok, issuer_node} <- XmlNode.first_child(xml_node, ~r/.*:?Issuer$/),
          {:ok, issuer} <- XmlNode.text(issuer_node),
-         {:ok, subject_node} <- XmlNode.first_child(xml_node, "*:Subject"),
-         {:ok, name_id_node} <- XmlNode.first_child(subject_node, "*:NameID"),
+         {:ok, subject_node} <- XmlNode.first_child(xml_node, ~r/.*:?Subject$/),
+         {:ok, name_id_node} <- XmlNode.first_child(subject_node, ~r/.*:?NameID$/),
          {:ok, name_id} <- XmlNode.text(name_id_node),
          {:ok, {name_id_not_on_or_after, recipient}} <- get_subject_confirmation(subject_node),
-         {:ok, conditions_node} <- XmlNode.first_child(xml_node, "*:Conditions"),
+         {:ok, conditions_node} <- XmlNode.first_child(xml_node, ~r/.*:?Conditions$/),
          {:ok, not_before_string} <- XmlNode.attribute(conditions_node, "NotBefore"),
          {:ok, not_before} <- to_datetime(not_before_string),
          {:ok, not_on_or_after_string} <- XmlNode.attribute(conditions_node, "NotOnOrAfter"),
          {:ok, not_on_or_after} <- to_datetime(not_on_or_after_string),
          {:ok, audience_restriction_node} <-
-           XmlNode.first_child(conditions_node, "*:AudienceRestriction"),
-         {:ok, audience_node} <- XmlNode.first_child(audience_restriction_node, "*:Audience"),
+           XmlNode.first_child(conditions_node, ~r/.*:?AudienceRestriction$/),
+         {:ok, audience_node} <- XmlNode.first_child(audience_restriction_node, ~r/.*:?Audience$/),
          {:ok, audience} <- XmlNode.text(audience_node) do
       {:ok,
        %__MODULE__{
@@ -155,11 +155,11 @@ defmodule SimpleSaml.Assertion do
           {:ok, {DateTime.t(), String.t()}} | {:error, any()}
   defp get_subject_confirmation(subject_node) when is_tuple(subject_node) do
     with {:ok, subject_confirmation_node} <-
-           XmlNode.first_child(subject_node, "*:SubjectConfirmation"),
+           XmlNode.first_child(subject_node, ~r/.*:?SubjectConfirmation$/),
          {:ok, method} <- XmlNode.attribute(subject_confirmation_node, "Method"),
          :ok <- verify_bearer_confirmation_method(method),
          {:ok, subject_confirmation_data_node} <-
-           XmlNode.first_child(subject_confirmation_node, "*:SubjectConfirmationData"),
+           XmlNode.first_child(subject_confirmation_node, ~r/.*:?SubjectConfirmationData$/),
          {:ok, not_before_or_after_string} <-
            XmlNode.attribute(subject_confirmation_data_node, "NotOnOrAfter"),
          {:ok, not_before_or_after} <- to_datetime(not_before_or_after_string),
