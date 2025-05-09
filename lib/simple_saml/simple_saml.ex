@@ -62,11 +62,18 @@ defmodule SimpleSaml do
   @spec verify_and_validate_response(SimpleXml.xml_node(), Assertion.t(), public_key()) ::
           :ok | {:error, any()}
   def verify_and_validate_response(root_node, %Assertion{} = assertion, public_key) do
-    with :ok <- SimpleXml.verify(root_node, public_key),
+    with :ok <- verify_xml(root_node, public_key),
          :ok <- Assertion.validate_time_conditions(assertion) do
       :ok
     else
       {:error, reason} -> {:error, reason}
+    end
+  end
+
+  defp verify_xml(root_node, public_key) do
+    with {:error, _} <- SimpleXml.verify(root_node, public_key),
+         {:ok, assertion_node} <- XmlNode.first_child(root_node, ~r/.*:?Assertion$/) do
+      SimpleXml.verify(assertion_node, public_key)
     end
   end
 end
