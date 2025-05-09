@@ -39,7 +39,7 @@ defmodule SimpleSaml do
   @spec parse_response(String.t()) ::
           {:ok, {SimpleXml.xml_node(), Assertion.t()}} | {:error, any()}
   def parse_response(base64_encoded_saml_response) do
-    with {:ok, saml_body} <- base64_encoded_saml_response |> Base.decode64(),
+    with {:ok, saml_body} <- base64_encoded_saml_response |> Base.decode64(ignore: :whitespace),
          {:ok, root_node} <- SimpleXml.parse(saml_body),
          {:ok, assertion_node} <- XmlNode.first_child(root_node, ~r/.*:?Assertion$/),
          {:ok, %Assertion{} = assertion} <- Assertion.from_node(assertion_node) do
