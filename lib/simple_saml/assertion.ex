@@ -78,7 +78,8 @@ defmodule SimpleSaml.Assertion do
          {:ok, not_on_or_after} <- to_datetime(not_on_or_after_string),
          {:ok, audience_restriction_node} <-
            XmlNode.first_child(conditions_node, ~r/.*:?AudienceRestriction$/),
-         {:ok, audience_node} <- XmlNode.first_child(audience_restriction_node, ~r/.*:?Audience$/),
+         {:ok, audience_node} <-
+           XmlNode.first_child(audience_restriction_node, ~r/.*:?Audience$/),
          {:ok, audience} <- XmlNode.text(audience_node) do
       {:ok,
        %__MODULE__{
