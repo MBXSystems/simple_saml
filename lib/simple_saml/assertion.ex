@@ -217,9 +217,9 @@ defmodule SimpleSaml.Assertion do
   defp extract_attributes(node) do
     with {:ok, attributes_node} <- XmlNode.first_child(node, "*:AttributeStatement") do
       XmlNode.children(attributes_node, "*:Attribute")
-      |> Enum.flat_map(fn node ->
-        with {:ok, name} <- XmlNode.attribute(node, "Name") do
-          values = extract_attribute_values(node)
+      |> Enum.flat_map(fn attribute_node ->
+        with {:ok, name} <- XmlNode.attribute(attribute_node, "Name") do
+          values = extract_attribute_values(attribute_node)
           [{name, values}]
         else
           _ -> []
@@ -231,11 +231,18 @@ defmodule SimpleSaml.Assertion do
     end
   end
 
-  defp extract_attribute_values(node) do
-    XmlNode.children(node, "*:AttributeValue")
+  defp extract_attribute_values(attribute_node) do
+    XmlNode.children(attribute_node, "*:AttributeValue")
     |> Enum.flat_map(fn value_node ->
-      case XmlNode.text(value_node) do
-        {:ok, text} -> [text]
+      # Check if the value_node contains any child XML elements and skip if it
+      # does, because then it's not just a simple text node.
+      child_elements = XmlNode.children(value_node, "*")
+
+      with [] <- child_elements,
+           {:ok, text} <- XmlNode.text(value_node),
+           trimmed_text when trimmed_text != "" <- String.trim(text) do
+        [trimmed_text]
+      else
         _ -> []
       end
     end)
