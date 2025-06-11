@@ -56,6 +56,11 @@ defmodule SimpleSaml do
       iex> {:ok, {_root, assertion}} = SimpleSaml.parse_response(saml_response)
       iex> assertion
       %SimpleSaml.Assertion{
+        attributes: %{
+          "email" => ["adrian+onelogin@todo.computer"],
+          "first_name" => ["Adrian"],
+          "last_name" => ["Gruntkowski"]
+        },
         audience: "https://samltest.todo.computer",
         issuer: "https://app.onelogin.com/saml/metadata/183993d8-a07b-465c-9c7a-9d00898c4608",
         name_id: "adrian+onelogin@todo.computer",

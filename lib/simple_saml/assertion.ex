@@ -19,7 +19,8 @@ defmodule SimpleSaml.Assertion do
             recipient: nil,
             not_before: nil,
             not_on_or_after: nil,
-            audience: nil
+            audience: nil,
+            attributes: %{}
 
   @type t :: %__MODULE__{
           issuer: String.t(),
@@ -28,7 +29,8 @@ defmodule SimpleSaml.Assertion do
           recipient: String.t(),
           not_before: DateTime.t(),
           not_on_or_after: DateTime.t(),
-          audience: String.t()
+          audience: String.t(),
+          attributes: %{String.t() => list(String.t())}
         }
 
   @doc """
@@ -56,6 +58,27 @@ defmodule SimpleSaml.Assertion do
         audience: "xqO52CNELd0hVB9vaX1d_dcwuYAxGUSr"
       }}
 
+  ### Attributes are returned from the XML
+
+      iex> xml = ~S{<saml:Assertion xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xs="http://www.w3.org/2001/XMLSchema" ID="_d71a3a8e9fcc45c9e9d248ef7049393fc8f04e5f75" Version="2.0" IssueInstant="2014-07-17T01:01:48Z">    <saml:Issuer>http://idp.example.com/metadata.php</saml:Issuer>    <saml:Subject>      <saml:NameID SPNameQualifier="http://sp.example.com/demo1/metadata.php" Format="urn:oasis:names:tc:SAML:2.0:nameid-format:transient">_ce3d2948b4cf20146dee0a0b3dd6f69b6cf86f62d7</saml:NameID>      <saml:SubjectConfirmation Method="urn:oasis:names:tc:SAML:2.0:cm:bearer">        <saml:SubjectConfirmationData NotOnOrAfter="2024-01-18T06:21:48Z" Recipient="http://sp.example.com/demo1/index.php?acs" InResponseTo="ONELOGIN_4fee3b046395c4e751011e97f8900b5273d56685"/>      </saml:SubjectConfirmation>    </saml:Subject>    <saml:Conditions NotBefore="2014-07-17T01:01:18Z" NotOnOrAfter="2024-01-18T06:21:48Z">      <saml:AudienceRestriction>        <saml:Audience>http://sp.example.com/demo1/metadata.php</saml:Audience>      </saml:AudienceRestriction>    </saml:Conditions>    <saml:AuthnStatement AuthnInstant="2014-07-17T01:01:48Z" SessionNotOnOrAfter="2024-07-17T09:01:48Z" SessionIndex="_be9967abd904ddcae3c0eb4189adbe3f71e327cf93">      <saml:AuthnContext>        <saml:AuthnContextClassRef>urn:oasis:names:tc:SAML:2.0:ac:classes:Password</saml:AuthnContextClassRef>      </saml:AuthnContext>    </saml:AuthnStatement>    <saml:AttributeStatement>      <saml:Attribute Name="uid" NameFormat="urn:oasis:names:tc:SAML:2.0:attrname-format:basic">        <saml:AttributeValue xsi:type="xs:string">test</saml:AttributeValue>      </saml:Attribute>      <saml:Attribute Name="mail" NameFormat="urn:oasis:names:tc:SAML:2.0:attrname-format:basic">        <saml:AttributeValue xsi:type="xs:string">test@example.com</saml:AttributeValue>      </saml:Attribute>      <saml:Attribute Name="eduPersonAffiliation" NameFormat="urn:oasis:names:tc:SAML:2.0:attrname-format:basic">        <saml:AttributeValue xsi:type="xs:string">users</saml:AttributeValue>        <saml:AttributeValue xsi:type="xs:string">examplerole1</saml:AttributeValue>      </saml:Attribute>    </saml:AttributeStatement>  </saml:Assertion>}
+      iex> {:ok, assertion_node} = SimpleXml.parse(xml)
+      iex> SimpleSaml.Assertion.from_node(assertion_node)
+      {:ok,
+      %SimpleSaml.Assertion{
+        attributes: %{
+          "eduPersonAffiliation" => ["users", "examplerole1"],
+          "mail" => ["test@example.com"],
+          "uid" => ["test"]
+        },
+        audience: "http://sp.example.com/demo1/metadata.php",
+        issuer: "http://idp.example.com/metadata.php",
+        name_id: "_ce3d2948b4cf20146dee0a0b3dd6f69b6cf86f62d7",
+        name_id_not_on_or_after: ~U[2024-01-18 06:21:48Z],
+        not_before: ~U[2014-07-17 01:01:18Z],
+        not_on_or_after: ~U[2024-01-18 06:21:48Z],
+        recipient: "http://sp.example.com/demo1/index.php?acs"
+      }}
+
   ### An error is generated if a field is missing
 
       iex> xml = ~S{<saml2:Assertion ID="id2812939747337372346813126" IssueInstant="2023-07-14T12:16:55.216Z" Version="2.0" xmlns:saml2="urn:oasis:names:tc:SAML:2.0:assertion"><saml2:Subject><saml2:NameID Format="urn:oasis:names:tc:SAML:1.1:nameid-format:unspecified">dj.jain</saml2:NameID><saml2:SubjectConfirmation Method="urn:oasis:names:tc:SAML:2.0:cm:bearer"><saml2:SubjectConfirmationData NotOnOrAfter="2023-07-14T12:21:55.216Z" Recipient="https://local.mbx.com:4001/auth/ahead/sso"/></saml2:SubjectConfirmation></saml2:Subject><saml2:Conditions NotBefore="2023-07-14T12:11:55.216Z" NotOnOrAfter="2023-07-14T12:21:55.216Z"><saml2:AudienceRestriction><saml2:Audience>xqO52CNELd0hVB9vaX1d_dcwuYAxGUSr</saml2:Audience></saml2:AudienceRestriction></saml2:Conditions><saml2:AuthnStatement AuthnInstant="2023-07-14T12:16:55.216Z" SessionIndex="id1689337015214.1284590967"><saml2:AuthnContext><saml2:AuthnContextClassRef>urn:oasis:names:tc:SAML:2.0:ac:classes:PasswordProtectedTransport</saml2:AuthnContextClassRef></saml2:AuthnContext></saml2:AuthnStatement></saml2:Assertion>}
@@ -81,6 +104,8 @@ defmodule SimpleSaml.Assertion do
          {:ok, audience_node} <-
            XmlNode.first_child(audience_restriction_node, ~r/.*:?Audience$/),
          {:ok, audience} <- XmlNode.text(audience_node) do
+      attributes = extract_attributes(xml_node)
+
       {:ok,
        %__MODULE__{
          issuer: issuer,
@@ -89,7 +114,8 @@ defmodule SimpleSaml.Assertion do
          recipient: recipient,
          not_before: not_before,
          not_on_or_after: not_on_or_after,
-         audience: audience
+         audience: audience,
+         attributes: attributes
        }}
     else
       {:error, reason} -> {:error, reason}
@@ -186,5 +212,32 @@ defmodule SimpleSaml.Assertion do
       {:error, _reason} ->
         {:error, {:failed_to_parse_timestamp, iso8601_datetime}}
     end
+  end
+
+  defp extract_attributes(node) do
+    with {:ok, attributes_node} <- XmlNode.first_child(node, "*:AttributeStatement") do
+      XmlNode.children(attributes_node, "*:Attribute")
+      |> Enum.flat_map(fn node ->
+        with {:ok, name} <- XmlNode.attribute(node, "Name") do
+          values = extract_attribute_values(node)
+          [{name, values}]
+        else
+          _ -> []
+        end
+      end)
+      |> Enum.into(%{})
+    else
+      _ -> %{}
+    end
+  end
+
+  defp extract_attribute_values(node) do
+    XmlNode.children(node, "*:AttributeValue")
+    |> Enum.flat_map(fn value_node ->
+      case XmlNode.text(value_node) do
+        {:ok, text} -> [text]
+        _ -> []
+      end
+    end)
   end
 end
