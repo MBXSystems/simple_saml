@@ -1,5 +1,10 @@
 # Changelog for simple_saml
 
+## v1.2.0
+
+* Add support for wider range of identity providers + assert (thanks @zoldar)
+* Update dependencies to latest versions
+
 ## v1.1.0
 
 * Add support for SAML responses that include attribute namespaces and inclusive namespaces
