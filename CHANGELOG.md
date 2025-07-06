@@ -1,5 +1,9 @@
 # Changelog for simple_saml
 
+## v1.x
+
+* Update readme to include sample app (thanks [@zoldar](https://github.com/zoldar))
+
 ## v1.2.0
 
 * Add support for wider range of identity providers + assert (thanks [@zoldar](https://github.com/zoldar))

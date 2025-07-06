@@ -33,6 +33,10 @@ public_key = X509.Certificate.public_key(cert)
 # authenticate the user.
 ```
 
+#### Sample App
+
+A sample app is available at [https://github.com/zoldar/simple_saml_example](https://github.com/zoldar/simple_saml_example).
+
 ## Installation
 
 The package can be installed, via [Hex](https://hex.pm/packages/simple_saml), by adding `simple_saml` to your list of dependencies in `mix.exs`:
