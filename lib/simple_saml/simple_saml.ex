@@ -41,6 +41,17 @@ defmodule SimpleSaml do
       iex> {:ok, {_root, assertion}} = SimpleSaml.parse_response(saml_response)
       iex> assertion
       %SimpleSaml.Assertion{
+        attributes: %{
+          "http://schemas.microsoft.com/claims/authnmethodsreferences" => ["http://schemas.microsoft.com/ws/2008/06/identity/authenticationmethod/password", "http://schemas.microsoft.com/claims/multipleauthn", "http://schemas.microsoft.com/ws/2008/06/identity/authenticationmethod/unspecified"],
+          "http://schemas.microsoft.com/identity/claims/displayname" => ["Adrian Gruntkowski"],
+          "http://schemas.microsoft.com/identity/claims/identityprovider" => ["live.com"],
+          "http://schemas.microsoft.com/identity/claims/objectidentifier" => ["2bcdc4a9-e20d-4375-92a0-1548e5241651"],
+          "http://schemas.microsoft.com/identity/claims/tenantid" => ["8e4dae73-8586-43f1-8e9b-8e5a09949050"],
+          "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress" => ["adrian.gruntkowski@gmail.com"],
+          "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/givenname" => ["Adrian"],
+          "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name" => ["adrian.gruntkowski_gmail.com#EXT#@adriangruntkowskigmail.onmicrosoft.com"],
+          "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/surname" => ["Gruntkowski"]
+        },
         audience: "https://samltest.todo.computer",
         issuer: "https://sts.windows.net/8e4dae73-8586-43f1-8e9b-8e5a09949050/",
         name_id: "adrian.gruntkowski_gmail.com#EXT#@adriangruntkowskigmail.onmicrosoft.com",
@@ -56,6 +67,11 @@ defmodule SimpleSaml do
       iex> {:ok, {_root, assertion}} = SimpleSaml.parse_response(saml_response)
       iex> assertion
       %SimpleSaml.Assertion{
+        attributes: %{
+          "email" => ["adrian+onelogin@todo.computer"],
+          "first_name" => ["Adrian"],
+          "last_name" => ["Gruntkowski"]
+        },
         audience: "https://samltest.todo.computer",
         issuer: "https://app.onelogin.com/saml/metadata/183993d8-a07b-465c-9c7a-9d00898c4608",
         name_id: "adrian+onelogin@todo.computer",
