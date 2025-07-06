@@ -40,7 +40,7 @@ defmodule SimpleSaml.MixProject do
   defp deps do
     [
       {:simple_xml, "~> 1.3"},
-      {:x509, "~> 0.8.7"},
+      {:x509, "~> 0.9.0"},
       {:ex_doc, ">= 0.0.0", only: [:dev], runtime: false},
       {:credo, "~> 1.7.0", only: [:dev, :test], runtime: false},
       {:dialyxir, "~> 1.3", only: [:dev, :test], runtime: false}
