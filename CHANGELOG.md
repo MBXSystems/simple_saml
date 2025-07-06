@@ -3,6 +3,7 @@
 ## v1.2.0
 
 * Add support for wider range of identity providers + assert (thanks @zoldar)
+* Return attributes as part of the assertion (thanks @tomtaylor)
 * Update dependencies to latest versions
 
 ## v1.1.0

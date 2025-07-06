@@ -32,7 +32,10 @@ defmodule SimpleSaml.MixProject do
     [
       files: ~w(lib .formatter.exs mix.exs README* LICENSE* CHANGELOG*),
       licenses: ["MIT"],
-      links: %{"GitHub" => "https://github.com/MBXSystems/simple_saml"}
+      links: %{
+        "Changelog" => "https://github.com/MBXSystems/simple_saml/blob/main/CHANGELOG.md",
+        "GitHub" => "https://github.com/MBXSystems/simple_saml"
+      }
     ]
   end
 
