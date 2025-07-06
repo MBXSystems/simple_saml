@@ -214,25 +214,39 @@ defmodule SimpleSaml.Assertion do
     end
   end
 
+  @spec extract_attributes(xml_node()) :: map()
   defp extract_attributes(node) do
-    with {:ok, attributes_node} <- XmlNode.first_child(node, ~r/.*:?AttributeStatement$/) do
-      XmlNode.children(attributes_node, ~r/.*:?Attribute$/)
-      |> Enum.flat_map(fn attribute_node ->
-        with {:ok, name} <- XmlNode.attribute(attribute_node, "Name") do
+    node
+    |> get_attribute_nodes()
+    |> Enum.flat_map(fn attribute_node ->
+      case XmlNode.attribute(attribute_node, "Name") do
+        {:ok, name} ->
           values = extract_attribute_values(attribute_node)
           [{name, values}]
-        else
-          _ -> []
-        end
-      end)
-      |> Enum.into(%{})
-    else
-      _ -> %{}
+
+        _ ->
+          []
+      end
+    end)
+    |> Map.new()
+  end
+
+  @spec get_attribute_nodes(xml_node()) :: [xml_node()]
+  defp get_attribute_nodes(node) do
+    node
+    |> XmlNode.first_child(~r/.*:?AttributeStatement$/i)
+    |> case do
+      {:ok, attributes_node} ->
+        XmlNode.children(attributes_node, ~r/.*:?Attribute$/i)
+
+      _ ->
+        []
     end
   end
 
+  @spec extract_attribute_values(xml_node()) :: [String.t()]
   defp extract_attribute_values(attribute_node) do
-    XmlNode.children(attribute_node, ~r/.*:?AttributeValue$/)
+    XmlNode.children(attribute_node, ~r/.*:?AttributeValue$/i)
     |> Enum.flat_map(fn value_node ->
       # Check if the value_node contains any child XML elements and skip if it
       # does, because then it's not just a simple text node.
