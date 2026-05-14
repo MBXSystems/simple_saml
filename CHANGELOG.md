@@ -1,8 +1,9 @@
 # Changelog for simple_saml
 
-## v1.x
+## v1.2.1
 
 * Update readme to include sample app (thanks [@zoldar](https://github.com/zoldar))
+* Updated deps to latest versions
 
 ## v1.2.0
 
